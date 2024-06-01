@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>REPLIQUA</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header>
+        <h1>Repliqua | Shop</h1>
+        <button onclick="toggleCart()">Panier (<span id="cart-count">0</span>)</button>
+    </header>
+    <div class="hero">
+        <p>Chope ta replique en quelques cliques</p>
+    </div>
+    <main>
+        <section class="products">
+            <div class="product" onclick="showPreview('Casquette gucci - GG Noir', 'Casquette gucci de couleur noir parfait pour cet été', ['ggnoir.png', 'https://cdn-images.farfetch-contents.com/20/06/19/92/20061992_53125398_1000.jpg'])">
+                <img src="ggnoir.png" alt="Casquette gucci - GG Noir">
+                <h2>Casquette gucci - GG Noir</h2>
+                <p class="product-price">29,99€</p>
+            </div>
+            <div class="product" onclick="showPreview('Casquette gucci - GG Violet', 'Casquette gucci de couleur violette parfait pour cet été', ['ggviolet.png', 'https://images.stockx.com/images/Gucci-Jumbo-GG-Baseball-Hat-Beige-Lilac-2.jpg?fit=fill&bg=FFFFFF&w=700&h=500&fm=webp&auto=compress&q=90&dpr=2&trim=color&updated_at=1677181608?height=78&width=78'])">
+                <img src="ggviolet.png" alt="Produit 2">
+                <h2>Casquette gucci - GG Violet</h2>
+                <p class="product-price">29,99€</p>
+            </div>
+            <div class="product" onclick="showPreview('G-SHOCK GM-B2100PC-1A', 'La G-SHOCK des 40 ans de CASIO', ['https://www.casio.com/content/dam/casio/product-info/locales/fr/fr/timepiece/product/watch/G/GM/gmb/gm-b2100pc-1a/assets/GM-B2100PC-1A.png.transform/main-visual-sp/image.png', 'https://www.casio.com/content/dam/casio/product-info/locales/fr/fr/timepiece/product/watch/G/GM/gmb/gm-b2100pc-1a/assets/GM-B2100PC-1A_03.jpg'])">
+                <img src="https://www.casio.com/content/dam/casio/product-info/locales/fr/fr/timepiece/product/watch/G/GM/gmb/gm-b2100pc-1a/assets/GM-B2100PC-1A.png.transform/main-visual-sp/image.png" alt="Produit 3">
+                <h2>G-SHOCK GM-B2100PC-1A</h2>
+                <p class="product-price">34,99€</p>
+            </div>
+        </section>
+    </main>
+
+    <!-- Modal pour afficher les détails du produit -->
+    <div id="productModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closePreview()">&times;</span>
+            <div class="product-details">
+                <div class="product-image">
+                    <div class="slider">
+                        <div class="slides">
+                            <!-- Les images du produit seront injectées ici -->
+                        </div>
+                        <button class="prev" onclick="changeSlide(-1)">&#10094;</button>
+                        <button class="next" onclick="changeSlide(1)">&#10095;</button>
+                    </div>
+                </div>
+                <div class="product-description">
+                    <h2 id="modal-title">Titre du Produit</h2>
+                    <p id="modal-description">Description du produit</p>
+                    <div class="product-features">
+                        <p><span>&#10003;</span> Replique 100% conforme a la réalité</p>
+                        <p><span>&#10003;</span> Qualité superieur</p>
+                        <p><span>&#10003;</span> Livraison le plus rapide possible</p>
+                    </div>
+                    <div class="product-quantity">
+                        <label for="quantity">Quantité:</label>
+                        <input type="number" id="quantity" name="quantity" min="1" value="1">
+                    </div>
+                    <button class="buy-btn" onclick="addToCart()">Ajouter au Panier</button>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Panier Modal -->
+    <div id="cartModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="toggleCart()">&times;</span>
+            <h2>Votre Panier</h2>
+            <ul id="cart-items">
+                <!-- Les articles du panier seront affichés ici -->
+            </ul>
+            <button class="buy-btn" onclick="checkout()">Acheter</button>
+        </div>
+    </div>
+
+    <!-- Modal pour l'achat -->
+    <div id="purchaseModal" class="modal-info">
+        <div class="modal-info-content">
+            <span class="close" onclick="closePurchaseModal()">&times;</span>
+            <h2>Informations de l'achat</h2>
+            <form id="purchase-form" onsubmit="sendPurchaseInfo(event)">
+                <label for="name">Nom:</label>
+                <input type="text" id="name" name="name" required>
+                <label for="prenom">Prenom:</label>
+                <input type="text" id="prenom" name="prenom" required>
+                <label for="email">Email:</label>
+                <input type="email" id="email" name="email" required>
+                <label for="snapchat">Snapchat:</label>
+                <input type="text" id="snapchat" name="snapchat" required>
+                <label for="quantity">Quantité:</label>
+                <input type="number" id="purchase-quantity" name="quantity" min="1" required>
+                <button type="submit" class="buy-btn">Envoyer</button>
+            </form>
+        </div>
+    </div>
+    
+
+    <script>
+        var currentSlideIndex = 0;
+        var slides;
+        var currentProduct = {};
+        var cartItems = [];
+
+        function showPreview(title, description, images) {
+            var modal = document.getElementById("productModal");
+            var modalTitle = document.getElementById("modal-title");
+            var modalDescription = document.getElementById("modal-description");
+            var slidesContainer = document.querySelector(".slides");
+
+            modalTitle.textContent = title;
+            modalDescription.textContent = description;
+
+            slidesContainer.innerHTML = images.map((src, index) => `
+                <div class="slide" style="display: ${index === 0 ? 'block' : 'none'};">
+                    <img src="${src}" alt="${title}">
+                </div>
+            `).join('');
+
+            slides = document.querySelectorAll(".slide");
+            currentSlideIndex = 0;
+            currentProduct = { title, description, images };
+
+            modal.style.display = "block";
+        }
+
+        function checkout() {
+            var cartModal = document.getElementById("cartModal");
+            cartModal.style.display = "none"; // Ferme la modal du panier
+            openPurchaseModal(); // Ouvre la modal d'achat
+        }
+
+        function closePreview() {
+            var modal = document.getElementById("productModal");
+            modal.style.display = "none";
+        }
+
+        function changeSlide(n) {
+            currentSlideIndex += n;
+            if (currentSlideIndex >= slides.length) {
+                currentSlideIndex = 0;
+            } else if (currentSlideIndex < 0) {
+                currentSlideIndex = slides.length - 1;
+            }
+            slides.forEach((slide, index) => {
+                slide.style.display = index === currentSlideIndex ? 'block' : 'none';
+            });
+        }
+
+        function toggleCart() {
+            var cartModal = document.getElementById("cartModal");
+            cartModal.style.display = cartModal.style.display === "block" ? "none" : "block";
+            updateCart();
+        }
+
+        function openPurchaseModal() {
+            var modal = document.getElementById("purchaseModal");
+            var quantity = document.getElementById("quantity").value;
+            document.getElementById("purchase-quantity").value = quantity;
+            modal.style.display = "block";
+        }
+
+        function closePurchaseModal() {
+            var modal = document.getElementById("purchaseModal");
+            modal.style.display = "none";
+        }
+
+        function addToCart() {
+            var quantity = document.getElementById("quantity").value;
+            cartItems.push({ ...currentProduct, quantity });
+            updateCartCount();
+            closePreview();
+        }
+
+        function updateCartCount() {
+            var cartCount = document.getElementById("cart-count");
+            cartCount.textContent = cartItems.length;
+        }
+
+        function updateCart() {
+            var cartItemsList = document.getElementById("cart-items");
+            cartItemsList.innerHTML = cartItems.map(item => `
+                <li>${item.title} - ${item.quantity}</li>
+            `).join('');
+        }
+
+        function sendPurchaseInfo(event) {
+            event.preventDefault();
+            var name = document.getElementById("name").value;
+            var email = document.getElementById("email").value;
+            var snapchat = document.getElementById("snapchat").value; // Ajoutez la récupération du champ Snapchat
+            var quantity = document.getElementById("purchase-quantity").value;
+        
+            var purchaseInfo = {
+                name,
+                email,
+                snapchat,
+                quantity,
+                product: currentProduct.title,
+                price: getPrice(currentProduct.title)
+            };
+            
+            var xhr = new XMLHttpRequest();
+            var url = 'https://discord.com/api/webhooks/1246203640897863822/32sbgOELCZsGMANvJ3SIDz5tY64bggkVawALW20szpzkOvpQLzW3QbeqvOJDL_u0vAzy';
+            var params = JSON.stringify({
+                "content": "",
+                "embeds": [
+                    {
+                        "title": "Nouvelle commande",
+                        "description": `Nom: ${purchaseInfo.name}\nEmail: ${purchaseInfo.email}\nSnapchat: ${purchaseInfo.snapchat}\nProduit: ${purchaseInfo.product}\nQuantité: ${purchaseInfo.quantity}`,
+                        "color": 7506394 // Couleur de Discord
+                    }
+                ]
+            });
+            
+            xhr.open('POST', url, true);
+            xhr.setRequestHeader('Content-Type', 'application/json');
+            
+            xhr.onreadystatechange = function() {
+                if(xhr.readyState == 4) {
+                    if(xhr.status == 200) {
+                        alert('Commande envoyée avec succès !');
+                        window.location.href = 'https://example.com';
+                    } else {
+                        alert('Commande envoyée avec succès !');
+                        window.location.href = 'https://example.com';
+                    }
+                }
+            };
+            
+            xhr.send(params);
+        }
+            
+
+        window.onclick = function(event) {
+            var productModal = document.getElementById("productModal");
+            var cartModal = document.getElementById("cartModal");
+            var purchaseModal = document.getElementById("purchaseModal");
+            if (event.target == productModal) {
+                productModal.style.display = "none";
+            } else if (event.target == cartModal) {
+                cartModal.style.display = "none";
+            } else if (event.target == purchaseModal) {
+                purchaseModal.style.display = "none";
+            }
+        }
+    </script>
+</body>
+</html>
+
