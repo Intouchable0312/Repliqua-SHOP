@@ -4,6 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>REPLIQUA</title>
+    <meta property="og:title" content="Repliqua | Boutique de répliques">
+    <meta property="og:description" content="Vien vite faire un tour sur Repliqua, ma boutique de répliques préférée. Tu trouvera les meilleures répliques de vos marques préférées ici.">
+    <meta property="og:image" content="https://cache.marieclaire.fr/data/photo/w1000_ci/4w/coudre-ses-vetements.jpg">
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -83,7 +86,7 @@
     <div id="purchaseModal" class="modal-info">
         <div class="modal-info-content">
             <span class="close" onclick="closePurchaseModal()">&times;</span>
-            <h2>Informations de l'achat</h2>
+            <h2>Formulaire d'achat</h2>
             <form id="purchase-form" onsubmit="sendPurchaseInfo(event)">
                 <label for="name">Nom:</label>
                 <input type="text" id="name" name="name" required>
@@ -106,6 +109,8 @@
         var slides;
         var currentProduct = {};
         var cartItems = [];
+
+
 
         function showPreview(title, description, images) {
             var modal = document.getElementById("productModal");
@@ -192,47 +197,73 @@
         function sendPurchaseInfo(event) {
             event.preventDefault();
             var name = document.getElementById("name").value;
+            var prenom = document.getElementById("prenom").value;
             var email = document.getElementById("email").value;
-            var snapchat = document.getElementById("snapchat").value; // Ajoutez la récupération du champ Snapchat
+            var snapchat = document.getElementById("snapchat").value; 
             var quantity = document.getElementById("purchase-quantity").value;
+
+            var currentDate = new Date();
+            var options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+            var formattedDate = currentDate.toLocaleDateString('en-US', options);
         
             var purchaseInfo = {
                 name,
+                prenom,
                 email,
                 snapchat,
                 quantity,
                 product: currentProduct.title,
-                price: getPrice(currentProduct.title)
+                date: formattedDate
             };
-            
+        
             var xhr = new XMLHttpRequest();
-            var url = 'https://discord.com/api/webhooks/1246203640897863822/32sbgOELCZsGMANvJ3SIDz5tY64bggkVawALW20szpzkOvpQLzW3QbeqvOJDL_u0vAzy';
+            var url = 'https://discord.com/api/webhooks/1246556579852189761/UFjHlgjYEJypZ3SWSGNvbEPKprHMLsLUT4qVE-J-vrfrMTyNMkmQGEgOwImtMAkJ3mFJ';
             var params = JSON.stringify({
                 "content": "",
                 "embeds": [
                     {
-                        "title": "Nouvelle commande",
-                        "description": `Nom: ${purchaseInfo.name}\nEmail: ${purchaseInfo.email}\nSnapchat: ${purchaseInfo.snapchat}\nProduit: ${purchaseInfo.product}\nQuantité: ${purchaseInfo.quantity}`,
-                        "color": 7506394 // Couleur de Discord
+                        "title": "📦 Nouvelle Commande",
+                        "description": `**🛍️ Produit**: \`\`${purchaseInfo.product}\`\`\n**🧾 Quantité**: \`\`${purchaseInfo.quantity}\`\``,
+                        "color": 7506394,
+                        "fields": [
+                            {
+                                "name": "**👤 Nom**",
+                                "value": "``" + `${purchaseInfo.name} ${purchaseInfo.prenom}` + "``",
+                                "inline": false
+                            },
+                            {
+                                "name": "**📧 Email**",
+                                "value": "``" +purchaseInfo.email + "``",
+                                "inline": false
+                            },
+                            {
+                                "name": "**👻 Snapchat**",
+                                "value": "``" + purchaseInfo.snapchat + "``",
+                                "inline": false
+                            }
+                        ],
+                        "footer": {
+                            "text": "Repliqua Shop | " + formattedDate,
+                            "icon_url": "https://example.com/icon.png"
+                        },
                     }
                 ]
             });
-            
+        
             xhr.open('POST', url, true);
             xhr.setRequestHeader('Content-Type', 'application/json');
-            
+        
             xhr.onreadystatechange = function() {
                 if(xhr.readyState == 4) {
                     if(xhr.status == 200) {
                         alert('Commande envoyée avec succès !');
                         window.location.href = 'https://example.com';
                     } else {
-                        alert('Commande envoyée avec succès !');
-                        window.location.href = 'https://example.com';
+                        alert('Erreur lors de l\'envoi de la commande. Veuillez réessayer.');
                     }
                 }
             };
-            
+        
             xhr.send(params);
         }
             
